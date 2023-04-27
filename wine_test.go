@@ -197,6 +197,7 @@ func Test_wine_demo(t *testing.T) {
 
 	for i := range data {
 		deep.Standardize(data[i].Input)
+		//deep.Normalize(data[i].Input)
 		// t.Log(data[i].Input[0], data[i].Response)
 	}
 	data.Shuffle()
@@ -205,38 +206,38 @@ func Test_wine_demo(t *testing.T) {
 
 	neural := deep.NewNeural(&deep.Config{
 		Inputs:     len(data[0].Input),
-		Layout:     []int{10, 3},
+		Layout:     []int{25, 3},
 		Activation: deep.ActivationSigmoid,
 		Mode:       deep.ModeMultiClass,
 		Weight:     deep.NewNormal(1, 0),
 		Bias:       true,
 	})
 	// t.Log(neural.String())
-	trainer := training.NewTrainer(training.NewSGD(0.005, 0.5, 0, false), 50)
+	//trainer := training.NewTrainer(training.NewSGD(0.1, 0.1, 0.01, false), 50)
 
-	//trainer := training.NewTrainer(training.NewSGD(0.005, 0.5, 1e-6, true), 50)
+	trainer := training.NewTrainer(training.NewSGD(0.005, 0.5, 1e-6, true), 50)
 	//trainer := training.NewBatchTrainer(training.NewSGD(0.005, 0.1, 0, true), 50, 300, 16)
 	//trainer := training.NewTrainer(training.NewAdam(0.3, 0), 50)
-	//trainer := training.NewBatchTrainer(training.NewSGD(0.005, 0.1, 0, true), 50, 300, 16)
-	data, half := data.Split(0.95)
+	//trainer := training.NewBatchTrainer(training.NewSGD(0.05, 0.0, 0.00001, false), 50, 300, 16)
+	_, half := data.Split(0.90)
 	trainer.Train(neural, data, half, 10000)
 	for _, h := range half {
 		result := neural.Predict(h.Input)
 		t.Log("expected", h.Response, "got", result)
 	}
-	/*testData1 := []float64{13.48, 1.81, 2.41, 20.5, 100, 2.7, 2.98, .26, 1.86, 5.1, 1.04, 3.47, 920} // 0,0,1
+	testData1 := []float64{13.48, 1.81, 2.41, 20.5, 100, 2.7, 2.98, .26, 1.86, 5.1, 1.04, 3.47, 920} // 0,0,1
 	testData2 := []float64{12.37, 1.21, 2.56, 18.1, 98, 2.42, 2.65, .37, 2.08, 4.6, 1.19, 2.3, 678}  // 0,1,0
 	testData3 := []float64{14.13, 4.1, 2.74, 24.5, 96, 2.05, .76, .56, 1.35, 9.2, .61, 1.6, 560}     // 1,0,0
+	deep.Standardize(testData1)
+	deep.Standardize(testData2)
+	deep.Standardize(testData3)
 	result1 := neural.Predict(testData1)
-	time.Sleep(100 * time.Millisecond)
 	result2 := neural.Predict(testData2)
-	time.Sleep(100 * time.Millisecond)
-
 	result3 := neural.Predict(testData3)
 	if result1[0] == result2[0] {
 		fmt.Println("HUH?")
 	}
 	t.Log(result1)
 	t.Log(result2)
-	t.Log(result3)*/
+	t.Log(result3)
 }
